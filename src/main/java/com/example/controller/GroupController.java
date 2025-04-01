@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.dto.GroupWithStudents;
 import com.example.entity.Batch;
 import com.example.entity.Group;
 import com.example.entity.Student;
@@ -29,25 +30,28 @@ public class GroupController {
 
     // Create a new group
     @PostMapping
-    public ResponseEntity<Group> createGroup(@RequestBody Group group, @RequestParam List<String> studentIds) {
-        Optional<Batch> batchOpt = batchRepository.findById(group.getBatch().getBatchId());
-
+    public ResponseEntity<Group> createGroup(@RequestBody GroupWithStudents groupWithStudents) {
+        // Validate the batch ID
+        Optional<Batch> batchOpt = batchRepository.findById(groupWithStudents.getGroup().getBatch().getBatchId());
         if (batchOpt.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
+    
+        // Create and save the group
+        Group group = groupWithStudents.getGroup();
         group.setBatch(batchOpt.get());
         Group savedGroup = groupRepository.save(group);
-
-        // Update student entities with this group ID
-        List<Student> students = studentRepository.findAllById(studentIds);
+    
+        // Update student entities with the new group ID
+        List<Student> students = studentRepository.findAllById(groupWithStudents.getStudentIds());
         for (Student student : students) {
             student.setGroup(savedGroup);
             studentRepository.save(student);
         }
-
+    
         return new ResponseEntity<>(savedGroup, HttpStatus.CREATED);
     }
+    
 
     // Delete a group
     @DeleteMapping("/{groupId}")
@@ -72,23 +76,6 @@ public class GroupController {
 
         groupRepository.delete(group);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    // Update project title and description
-    @PutMapping("/{groupId}")
-    public ResponseEntity<Group> updateGroup(@PathVariable String groupId, @RequestBody Group groupDetails) {
-        Optional<Group> existingGroupOpt = groupRepository.findById(groupId);
-
-        if (existingGroupOpt.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        Group existingGroup = existingGroupOpt.get();
-        existingGroup.setProjectTitle(groupDetails.getProjectTitle());
-        existingGroup.setProjectDescription(groupDetails.getProjectDescription());
-
-        Group updatedGroup = groupRepository.save(existingGroup);
-        return new ResponseEntity<>(updatedGroup, HttpStatus.OK);
     }
 
     // Get all groups with student details

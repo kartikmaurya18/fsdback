@@ -3,6 +3,8 @@ package com.example.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "groups")
 public class Group {
@@ -22,6 +24,7 @@ public class Group {
     private String projectDescription;
 
     @OneToMany(mappedBy = "group")
+    @JsonManagedReference  // Prevent recursive serialization
     private List<Student> students;
 
     // Constructors

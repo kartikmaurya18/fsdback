@@ -3,6 +3,8 @@ package com.example.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "batches")
 public class Batch {
@@ -15,6 +17,7 @@ public class Batch {
     private String venue;
 
     @OneToMany(mappedBy = "batch", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference 
     private List<Group> groups; // One Batch can have multiple Groups
 
     // Constructors

@@ -1,5 +1,7 @@
 package com.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -28,6 +30,7 @@ public class Student {
 
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = true)
+    @JsonManagedReference
     private Group group;
     @ManyToOne
     @JoinColumn(name = "mentor_id", nullable = true)
